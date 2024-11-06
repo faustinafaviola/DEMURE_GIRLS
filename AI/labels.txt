@@ -1,0 +1,8 @@
+Cans
+Mix (Canned Chips)
+Mix (Drinks)
+Non-recyclable (Chips)
+Non-recyclable (Cup Noodles)
+Paper
+Plastic
+Tissue

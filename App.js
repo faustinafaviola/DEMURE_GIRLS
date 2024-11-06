@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import * as ImagePicker from 'expo-image-picker';
+import axios from 'axios';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,10 +10,13 @@ import {
   Image,
   Dimensions,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 
 export default function App() {
   const [image, setImage] = useState(null);
+  const predictionUrl = 'https://hkexpressclassification2-prediction.cognitiveservices.azure.com/customvision/v3.0/Prediction/f47f8ad7-5e61-4437-919d-1428df87741c/classify/iterations/Iteration5/image'; // Replace with your Custom Vision Prediction URL
+  const predictionKey = '8raZvlpKcq9hJK6jFgJbDrhfWTU2NPKPejP8NsfJ8EXehS14LwayJQQJ99AKACYeBjFXJ3w3AAAIACOGl2V6'; // Replace with your Custom Vision Prediction Key
 
   useEffect(() => {
     (async () => {
@@ -32,7 +36,8 @@ export default function App() {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri); // Use result.assets[0].uri for the image URI
+      setImage(result.assets[0].uri);
+      analyzeImage(result.assets[0].uri);
     }
   };
 
@@ -45,10 +50,55 @@ export default function App() {
     });
 
     if (!result.canceled) {
-      setImage(result.assets[0].uri); // Use result.assets[0].uri for the image URI
+      setImage(result.assets[0].uri);
+      analyzeImage(result.assets[0].uri);
     }
   };
 
+  const analyzeImage = async (uri) => {
+    try {
+      const response = await fetch(uri);
+      const blob = await response.blob();
+  
+      const arrayBuffer = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsArrayBuffer(blob);
+      });
+  
+      const result = await axios.post(predictionUrl, arrayBuffer, {
+        headers: {
+          'Content-Type': 'application/octet-stream',
+          'Prediction-Key': predictionKey,
+        },
+      });
+  
+      // Extract predictions
+      const predictions = result.data.predictions.map(prediction => ({
+        tagName: prediction.tagName,
+        probability: prediction.probability,
+      }));
+  
+      // Create a string to display with categories
+      const resultString = predictions.map(pred => {
+        return `${pred.tagName}: ${(pred.probability * 100).toFixed(2)}%`;
+      }).join('\n');
+  
+      // General message about categories
+      let categoryMessage = 'General disposal guidance:\n';
+      categoryMessage += 'RECYCABLE BIN Products: paper, plastics.\n';
+      categoryMessage += 'NON-RECYCABLES BIN Products: tissue, chips, cup noodles.\n';
+      categoryMessage += 'FOOD DISPOSAL BIN Products: mix (drinks), mix (canned chips).\n';
+  
+      // Display the results along with the category message
+      Alert.alert('Analysis Result', resultString + '\n\n' + categoryMessage);
+    } catch (error) {
+      console.error('Error analyzing image:', error);
+      Alert.alert('Error', 'An error occurred while analyzing the image.');
+    }
+  };
+  
   const logo = require('./asset/hkexpress_logo.png');
 
   return (
@@ -56,9 +106,12 @@ export default function App() {
       <StatusBar barStyle="dark-content" />
       <SafeAreaView>
         <View style={styles.body}>
-        <Image source={logo} style={styles.headerImage} resizeMode="contain"/>
+          <Image source={logo} style={styles.headerImage} resizeMode="contain"/>
+          <Text style={{ textAlign: 'center', fontSize: 30, paddingBottom: 10, color: 'white', fontWeight:'600' }}>
+            EcoSort 
+          </Text>
           <Text style={{ textAlign: 'center', fontSize: 15, paddingBottom: 10, color: 'white' }}>
-            Pick Images from Camera & Gallery
+            The future of inflight recycling is here
           </Text>
           <View style={styles.ImageSections}>
             <View>
