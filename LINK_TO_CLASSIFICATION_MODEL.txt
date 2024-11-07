@@ -1,0 +1,14 @@
+
+
+
+
+Hello there! Thank you for taking the time to check out our trained AI model :) 
+
+Below is the link to where we trained the AI, using Microsoft Azure Custom Vision, to get access, you can login
+using our team's hackathon email as written below as well:
+
+Email: hack24_team23@Cathay1.onmicrosoft.com
+Password: Hackathon24
+Link to API: https://app.azure.com/eb972fa1-ba3a-4738-860c-a3098ef7c74f/subscriptions/33393004-a7b3-43b8-9850-9664eae0a630/resourceGroups/FnB/providers/Microsoft.CognitiveServices/accounts/HKExpressClassification2?utm_source=Portal
+
+It's been great making it this far to learn and invest more in Cathay's sustainable mission. Hope to see you in the final pitch :)))
